@@ -47,7 +47,7 @@
         /**
         * Whether to turn on tracking user events
         */
-        public trackingEnabled = true;
+        public trackingEnabled = false;
 
         /**
         * Params suggestion data. We keep it as a string to prevent from parsing it on the initialization.
@@ -62,7 +62,7 @@
         /**
          * Debug mode
          */
-        public debugMode = false;
+        public debugMode = true;
 
         constructor(storage) {
             storageCache = storage;

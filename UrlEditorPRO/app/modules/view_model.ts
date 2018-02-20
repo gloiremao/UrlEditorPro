@@ -35,10 +35,17 @@ module UrlEditor {
 
         constructor(private url: Uri, private doc: HTMLDocument, private settings: Settings, private submit: (uri: Uri, openIn: OpenIn) => void) {
 
-
+            
             this.measureElem = Helpers.ge<HTMLSpanElement>("measure");
 
             // bind event handlers
+            var addParamBtn = Helpers.ge<HTMLElement>("add_param");
+            var sendBtn = Helpers.ge<HTMLElement>("go");
+            console.log("sendBtn",sendBtn);
+
+            addParamBtn.addEventListener("click", evt => this.clickEventDispatcher(evt));
+            sendBtn.addEventListener("click", evt => this.clickEventDispatcher(evt));
+
             doc.body.addEventListener("click", evt => this.clickEventDispatcher(evt));
             doc.body.addEventListener("input", evt => this.keyboardEventDispatcher(evt));
             doc.body.addEventListener("updated", evt => this.keyboardEventDispatcher(evt));
@@ -86,18 +93,15 @@ module UrlEditor {
         }
 
         private clickEventDispatcher(evt: MouseEvent) {
-            let elem = <HTMLElement>evt.target;
+            let elem = <HTMLElement>evt.currentTarget;
+            console.log("click event");
 
             // make sure ParamOptions menu is closed
             ParamOptions.hide();
 
-            if (elem.tagName == "INPUT") {
-                var inputElem = <HTMLInputElement>elem;
-                switch (inputElem.type) {
-                    case "button":
-                        this.buttonClickHandler(inputElem, evt);
-                        break;
-                }
+            if (elem.tagName == "button") {
+                var pressedBtn = <HTMLButtonElement>elem;
+                this.buttonClickHandler(pressedBtn, evt);
             }
         }
 
@@ -130,10 +134,11 @@ module UrlEditor {
             }, 0);
         }
 
-        private buttonClickHandler(pressedButton: HTMLInputElement, evt: MouseEvent) {
+        private buttonClickHandler(pressedButton: HTMLButtonElement, evt: MouseEvent) {
             // this handler is triggered for any button click on page
-
-            var paramContainer = <IParamContainerElement>pressedButton.parentElement;
+            //todo
+            console.log("==buttonClickHandler");
+            var paramContainer = <IParamContainerElement>pressedButton.parentElement.parentElement;
             if (paramContainer.isParamContainer) {
 
                 ParamOptions.show(paramContainer, pressedButton, /*openingByKeyboard*/evt.clientX == 0 && evt.clientY == 0);
@@ -146,7 +151,7 @@ module UrlEditor {
                         break;
                     case "go":
                         // submit button
-                        Tracking.trackEvent(Tracking.Category.Submit, "click");
+                        //Tracking.trackEvent(Tracking.Category.Submit, "click");
                         this.submit(this.url, whereToOpenUrl(evt.ctrlKey, evt.shiftKey));
                         break;
                 }
@@ -281,13 +286,37 @@ module UrlEditor {
 
         private createNewParamContainer(name?: string): IParamContainerElement {
             var param = <IParamContainerElement>document.createElement("div");
-            param.className = "param";
-            param.innerHTML = '<input type="text" name="name" class="name" autocomplete="off" spellcheck="false" /> <input type="text" name="value" class="value" autocomplete="off" spellcheck="false" /> <input type="button" value="&#x270E;" />';
+            param.className = "input-group mb-1"
+            //param.innerHTML = '<input type="text" name="name" class="name" autocomplete="off" spellcheck="false" /> <input type="text" name="value" class="value" autocomplete="off" spellcheck="false" /> <input type="button" value="&#x270E;" />';
+
+            var paramName = <HTMLInputElement>document.createElement("input");
+            paramName.className = "form-control param-name form-small";
+            paramName.type = "text";
+            paramName.autocomplete = "off";
+            paramName.spellcheck = false;
+
+
+            var paramValueElement = <HTMLInputElement>document.createElement("input");
+            paramValueElement.className = "form-control param-value form-small";
+            paramValueElement.type = "text";
+            paramValueElement.autocomplete = "off";
+            paramValueElement.spellcheck = false;
+
+            /*<div class="input-group-append">
+            
+            </div>*/
+            var paramOptionWrapper = document.createElement("div");
+            paramOptionWrapper.className = "input-group-append";
+            paramOptionWrapper.innerHTML = '<button name="menu" class="btn btn-outline-secondary btn-sm" type="button"><i class="fas fa-pen-square"></i></button>';
+
+            param.appendChild(paramName);
+            param.appendChild(paramValueElement);
+            param.appendChild(paramOptionWrapper);
 
             // parameter name field
-            param.nameElement = <HTMLInputElement>param.firstElementChild;
+            param.nameElement = paramName;
             // parameter value field
-            param.valueElement = <HTMLInputElement>param.nameElement.nextElementSibling;
+            param.valueElement = paramValueElement;
 
             param.isParamContainer = true;
 

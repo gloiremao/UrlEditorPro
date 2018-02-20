@@ -74,10 +74,10 @@ module UrlEditor {
 
             chrome.tabs.get(tabId, tab => {
                 let data = this.redirMgr.getData();
-
+                console.log("==",tab.url);
                 Object.keys(data).forEach(name => {
                     let rule = new RedirectRule(data[name]);
-
+                    
                     // skip all autromatic rules and ones which are not for the current url
                     if (!rule.isAutomatic && rule.isUrlSupported(tab.url)) {
 

@@ -19,8 +19,15 @@ module UrlEditor {
         new RichTextboxViewModel(document);
 
         var versionElem = Helpers.ge("version");
-        versionElem.textContent = "UrlEditor PRO v" + version;
-        !settings.trackingEnabled && (versionElem.style.color = "red");
+        var titleElem = Helpers.ge("extName");
+        versionElem.textContent = ""+version;
+        if (!settings.trackingEnabled){
+            titleElem.textContent = "UrlEditor (Tracking Disable)"
+            versionElem.classList.add("badge-success");
+        }else{
+            titleElem.textContent = "UrlEditor Pro";
+            versionElem.classList.add("badge-primary");
+        }
 
         if (settings.debugMode) {
             let log = document.createElement("pre");
